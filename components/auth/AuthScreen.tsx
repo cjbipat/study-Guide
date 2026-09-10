@@ -28,7 +28,8 @@ export function AuthScreen({
     if (isSignup && name.trim()) {
       window.localStorage.setItem("studyquest.name", name.trim());
     }
-    // Demo experience — no real authentication. Straight to the product.
+    // Local-only workspace — no server auth yet. The name personalises the
+    // greeting; all data lives in this browser.
     setTimeout(() => router.push("/dashboard"), 450);
   }
 
@@ -56,12 +57,12 @@ export function AuthScreen({
               </h1>
               <p className="mt-2 text-muted">
                 {isSignup
-                  ? "Start free — sample decks are already loaded."
-                  : "Pick up your streak where you left off."}
+                  ? "Start with a clean workspace and build your own learning history."
+                  : "Pick up right where you left off."}
               </p>
 
               <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <Check className="h-3.5 w-3.5" /> Demo mode — no real account needed
+                <Check className="h-3.5 w-3.5" /> Your progress is saved on this device
               </div>
 
               <form onSubmit={submit} className="mt-7 space-y-4">
@@ -126,9 +127,9 @@ export function AuthScreen({
                 )}
               </p>
               <p className="mt-2 text-sm text-muted">
-                Or just{" "}
+                Or{" "}
                 <Link href="/dashboard" className="font-semibold text-primary hover:underline">
-                  explore the demo
+                  skip and start exploring
                 </Link>
                 .
               </p>
@@ -156,10 +157,12 @@ export function AuthScreen({
             />
           </motion.div>
           <p className="mt-8 max-w-sm text-center text-lg font-semibold text-white/90">
-            &ldquo;The first flashcard app where I&apos;ve kept a streak past two
-            weeks.&rdquo;
+            Upload material, build decks, take quizzes, learn a language — all in
+            one place, all tracked from what you actually do.
           </p>
-          <p className="mt-1 text-sm text-white/70">Maya R. · Med student</p>
+          <p className="mt-1 text-sm text-white/70">
+            Spaced repetition · honest progress · no fake numbers
+          </p>
         </div>
       </div>
     </div>

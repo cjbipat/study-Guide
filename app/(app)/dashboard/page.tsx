@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Flame, Zap } from "lucide-react";
 
 import { NextBestStep } from "@/components/learning/NextBestStep";
+import { NewUserWelcome } from "@/components/learning/NewUserWelcome";
 import { TodaysPlan } from "@/components/learning/TodaysPlan";
 import { ContinueLearning } from "@/components/learning/ContinueLearning";
 import { UniversalProgress } from "@/components/learning/UniversalProgress";
@@ -11,6 +12,8 @@ import { RecentProgress } from "@/components/learning/RecentProgress";
 import { Button } from "@/components/ui/Button";
 import { PageSkeleton } from "@/components/ui/Skeleton";
 import { useStore } from "@/lib/store-context";
+import { isEmptyWorkspace } from "@/lib/storage/empty";
+import { hasAnyActivity } from "@/lib/learning/selectors";
 import { greeting } from "@/lib/utils";
 import { levelFromXp } from "@/lib/xp";
 
@@ -30,8 +33,15 @@ export default function DashboardPage() {
 
   if (!ready) return <PageSkeleton />;
 
+  // Brand-new account — no content of any kind. Show onboarding, not an empty
+  // analytics dashboard.
+  if (isEmptyWorkspace(snapshot)) {
+    return <NewUserWelcome name={snapshot.user.name} />;
+  }
+
   const stats = snapshot.stats;
   const { level, progress } = levelFromXp(stats.totalXp);
+  const showStats = hasAnyActivity(snapshot);
 
   const nextStep =
     recommendations.length > 0
@@ -57,7 +67,11 @@ export default function DashboardPage() {
       {/* 1. Welcome */}
       <header className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          {greeting()}, {snapshot.user.name.split(" ")[0]}.
+          {greeting()}
+          {snapshot.user.name && snapshot.user.name !== "there"
+            ? `, ${snapshot.user.name.split(" ")[0]}`
+            : ""}
+          .
         </h1>
         <p className="mt-1 text-muted">Let&apos;s keep your learning moving.</p>
       </header>
@@ -82,7 +96,8 @@ export default function DashboardPage() {
       {/* 6. Recent progress */}
       <RecentProgress items={recent} />
 
-      {/* Streak / level strip */}
+      {/* Streak / level strip — only once there's real activity behind it */}
+      {showStats && (
       <section className="mt-10 flex flex-wrap items-center gap-4 rounded-3xl border border-border bg-surface-solid p-5 shadow-soft">
         <div className="flex items-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent/12 text-accent">
@@ -107,6 +122,7 @@ export default function DashboardPage() {
           View achievements
         </Button>
       </section>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { Reveal } from "@/components/ui/Reveal";
-import { LANDING_STATS } from "@/lib/mock-data";
+import { LANDING_STATS } from "@/lib/landing-content";
 
 export function StatsSection() {
   return (

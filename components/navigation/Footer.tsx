@@ -66,7 +66,7 @@ export function Footer() {
           ))}
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-sm text-muted sm:flex-row">
-          <p>© {new Date().getFullYear()} Ember Learning. A demo project.</p>
+          <p>© {new Date().getFullYear()} Ember Learning.</p>
           <p>Inspired by open-source spaced repetition. Not affiliated with Anki.</p>
         </div>
       </div>

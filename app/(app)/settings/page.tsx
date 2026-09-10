@@ -123,8 +123,8 @@ export default function SettingsPage() {
             </Button>
           </Row>
           <Row
-            title="Reset to sample data"
-            desc="Restore the starter decks and clear your progress. Can't be undone."
+            title="Clear all my data"
+            desc="Permanently delete every deck, material, quiz, language, and all your progress. Starts you over with an empty workspace. Can't be undone."
           >
             <Button
               size="sm"
@@ -132,15 +132,17 @@ export default function SettingsPage() {
               className="text-accent hover:bg-accent/10"
               onClick={() => setConfirmReset(true)}
             >
-              <RotateCcw className="h-4 w-4" /> Reset
+              <RotateCcw className="h-4 w-4" /> Clear
             </Button>
           </Row>
         </div>
       </section>
 
       <p className="mt-8 text-center text-xs text-muted-2">
-        Ember stores everything locally in your browser. The data layer is built
-        to connect to a backend (e.g. Supabase) without UI changes.
+        Ember stores your workspace in this browser only — it is not synced to an
+        account or across devices yet. Export regularly to keep a backup. The
+        storage layer is built to move to authenticated cloud sync without
+        changing any features.
       </p>
 
       <Modal
@@ -149,10 +151,13 @@ export default function SettingsPage() {
         labelledBy="reset-title"
       >
         <h2 id="reset-title" className="text-xl font-extrabold">
-          Reset everything?
+          Clear all your data?
         </h2>
         <p className="mt-2 text-muted">
-          This restores the sample decks and wipes your XP, streak, and history.
+          Every deck, material, quiz, language, review, and all your XP, streak,
+          and history will be permanently deleted. You&apos;ll start with a clean,
+          empty workspace. This can&apos;t be undone — export a backup first if
+          you want one.
         </p>
         <div className="mt-6 flex gap-3">
           <Button
@@ -162,7 +167,7 @@ export default function SettingsPage() {
               setConfirmReset(false);
             }}
           >
-            Reset data
+            Clear everything
           </Button>
           <Button variant="ghost" onClick={() => setConfirmReset(false)}>
             Cancel

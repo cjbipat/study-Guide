@@ -154,8 +154,40 @@ export function buildDailyLearningPlan(
   const plan = planFromInput(assemblePlanInput(snap, availableMinutes));
   if (!plan.empty) return plan;
 
-  // Nothing scheduled — offer a reasonable next action, don't fabricate work.
+  // Nothing on the review/weakness/continue schedule. If there's studyable
+  // content the user simply hasn't started yet, make that the plan — one real
+  // first step, not fabricated work. Otherwise they're genuinely caught up.
   const next = buildRecommendations(snap)[0];
+  const isFirstStep =
+    !!next &&
+    !!next.action?.href &&
+    (next.type === "StudyMaterial" ||
+      next.type === "ReviewFlashcards" ||
+      next.type === "PracticeLanguage" ||
+      next.type === "LearnVocabulary");
+
+  if (isFirstStep) {
+    return {
+      steps: [
+        {
+          id: `plan-start-${next.sourceId ?? next.id}`,
+          kind: "continue",
+          icon: "🚀",
+          title: "Start",
+          detail: next.title,
+          reason: next.reason.text,
+          estimatedMinutes: next.estimatedMinutes ?? Math.min(availableMinutes, 10),
+          sourceType: next.sourceType,
+          sourceId: next.sourceId,
+          action: next.action,
+        },
+      ],
+      totalMinutes: next.estimatedMinutes ?? Math.min(availableMinutes, 10),
+      availableMinutes: plan.availableMinutes,
+      empty: false,
+    };
+  }
+
   return {
     ...plan,
     emptyReason: next

@@ -62,8 +62,8 @@ export default function DecksPage() {
       {decks.length === 0 ? (
         <EmptyState
           icon="🗂️"
-          title="No decks yet"
-          body="Create your first deck and start adding cards. Sample decks come loaded by default — reset in Settings if you removed them."
+          title="No flashcard decks yet"
+          body="Flashcards use active recall and spaced repetition — the fastest way to move facts into long-term memory. Build a deck by hand, or generate one from study material you've uploaded."
           action={
             <Button href="/create" size="lg">
               <Plus className="h-4 w-4" /> Create your first deck

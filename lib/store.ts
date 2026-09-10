@@ -12,7 +12,8 @@ import {
   AchievementContext,
   evaluateAchievements,
 } from "@/lib/achievements";
-import { buildSeedSnapshot, SCHEMA_VERSION } from "@/lib/mock-data";
+import { repository } from "@/lib/storage/repository";
+import { emptySnapshot } from "@/lib/storage/empty";
 import { schedule } from "@/lib/study/scheduler";
 import { deckMastery, isDue, isNew } from "@/lib/study/scheduler";
 import {
@@ -53,71 +54,32 @@ import { materialKindFor } from "@/lib/materials/text-extract";
 import { XP_BY_RATING } from "@/lib/xp";
 import { todayKey, uid } from "@/lib/utils";
 
-const STORAGE_KEY = "studyquest.snapshot.v3";
-
 /* ------------------------------------------------------------------ */
 /*  Persistence                                                        */
 /* ------------------------------------------------------------------ */
+/*
+ * All persistence goes through `lib/storage/*`. These wrappers keep the old
+ * call sites unchanged. New users get `emptySnapshot()` — there is no seed or
+ * demo data anywhere in this path, and nothing reseeds on ordinary startup.
+ */
 
-function withNameOverride(snap: DatabaseSnapshot): DatabaseSnapshot {
-  if (typeof window === "undefined") return snap;
-  const name = window.localStorage.getItem("studyquest.name");
-  if (name && name.trim() && name.trim() !== snap.user.name) {
-    return { ...snap, user: { ...snap.user, name: name.trim() } };
-  }
-  return snap;
-}
-
+/** Load the workspace (or a fresh empty one for a new user). */
 export function loadSnapshot(): DatabaseSnapshot {
-  if (typeof window === "undefined") return buildSeedSnapshot();
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const seed = withNameOverride(buildSeedSnapshot());
-      saveSnapshot(seed);
-      return seed;
-    }
-    const parsed = JSON.parse(raw) as DatabaseSnapshot;
-    if (!parsed || parsed.version !== SCHEMA_VERSION) {
-      const seed = withNameOverride(buildSeedSnapshot());
-      saveSnapshot(seed);
-      return seed;
-    }
-    if (!Array.isArray(parsed.materials)) parsed.materials = [];
-    if (!Array.isArray(parsed.learningItems)) parsed.learningItems = [];
-    if (!Array.isArray(parsed.activities)) parsed.activities = [];
-    if (!Array.isArray(parsed.goals)) parsed.goals = [];
-    if (!Array.isArray(parsed.languages)) parsed.languages = [];
-    if (!Array.isArray(parsed.vocab)) parsed.vocab = [];
-    if (!Array.isArray(parsed.languageReviews)) parsed.languageReviews = [];
-    if (!Array.isArray(parsed.languageSessions)) parsed.languageSessions = [];
-    if (!Array.isArray(parsed.languageActivities)) parsed.languageActivities = [];
-    if (!Array.isArray(parsed.pronunciationAttempts))
-      parsed.pronunciationAttempts = [];
-    if (!Array.isArray(parsed.languageGoals)) parsed.languageGoals = [];
-    if (!Array.isArray(parsed.conversationSessions))
-      parsed.conversationSessions = [];
-    if (!Array.isArray(parsed.quizzes)) parsed.quizzes = [];
-    if (!Array.isArray(parsed.quizAttempts)) parsed.quizAttempts = [];
-    return withNameOverride(parsed);
-  } catch {
-    return buildSeedSnapshot();
-  }
+  if (typeof window === "undefined") return emptySnapshot();
+  return repository.load();
 }
 
+/** Persist the workspace. */
 export function saveSnapshot(snapshot: DatabaseSnapshot): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-  } catch {
-    /* quota / private mode — run in-memory only */
-  }
+  repository.save(snapshot);
 }
 
+/**
+ * Wipe the workspace back to empty. User-initiated only (Settings →
+ * "Clear all my data"); never runs automatically.
+ */
 export function resetSnapshot(): DatabaseSnapshot {
-  const seed = buildSeedSnapshot();
-  saveSnapshot(seed);
-  return seed;
+  return repository.reset();
 }
 
 /* ------------------------------------------------------------------ */

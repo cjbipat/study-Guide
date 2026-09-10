@@ -16,7 +16,7 @@ export function CTASection() {
             Your first correct answer is one deck away
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/90">
-            Start free with sample decks already loaded. Build your own in under a
+            Start free with a clean workspace. Build your first deck in under a
             minute.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

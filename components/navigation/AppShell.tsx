@@ -18,6 +18,7 @@ import { Logo } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useStore } from "@/lib/store-context";
 import { levelFromXp } from "@/lib/xp";
+import { hasAnyActivity } from "@/lib/learning/selectors";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -34,6 +35,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { snapshot, ready } = useStore();
   const { level, progress } = levelFromXp(snapshot.stats.totalXp);
+  // Streak / XP / level only appear once there's real activity behind them.
+  const showProgress = ready && hasAnyActivity(snapshot);
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href);
@@ -75,24 +78,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="rounded-2xl border border-border bg-surface-2 p-4">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-muted">Level {ready ? level : "—"}</span>
-            <span className="flex items-center gap-1 text-accent">
-              <Flame className="h-3.5 w-3.5" />
-              {ready ? snapshot.stats.currentStreak : "—"}
-            </span>
+        {showProgress && (
+          <div className="rounded-2xl border border-border bg-surface-2 p-4">
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="text-muted">Level {level}</span>
+              <span className="flex items-center gap-1 text-accent">
+                <Flame className="h-3.5 w-3.5" />
+                {snapshot.stats.currentStreak}
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-700"
+                style={{ width: `${Math.round(progress * 100)}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted">
+              {snapshot.stats.totalXp.toLocaleString()} XP total
+            </p>
           </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-[width] duration-700"
-              style={{ width: `${Math.round((ready ? progress : 0) * 100)}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-muted">
-            {ready ? snapshot.stats.totalXp.toLocaleString() : "—"} XP total
-          </p>
-        </div>
+        )}
 
         <div className="mt-4 flex items-center justify-between">
           <ThemeToggle />
@@ -107,10 +112,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="font-extrabold tracking-tight">Ember</span>
           </Link>
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 rounded-full bg-accent/12 px-2.5 py-1 text-xs font-bold text-accent">
-              <Flame className="h-3.5 w-3.5" />
-              {ready ? snapshot.stats.currentStreak : "—"}
-            </span>
+            {showProgress && (
+              <span className="flex items-center gap-1 rounded-full bg-accent/12 px-2.5 py-1 text-xs font-bold text-accent">
+                <Flame className="h-3.5 w-3.5" />
+                {snapshot.stats.currentStreak}
+              </span>
+            )}
             <ThemeToggle />
           </div>
         </header>

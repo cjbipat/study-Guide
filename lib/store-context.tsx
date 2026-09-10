@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import * as db from "@/lib/store";
-import { buildSeedSnapshot } from "@/lib/mock-data";
+import { emptySnapshot } from "@/lib/storage/empty";
 import type {
   AchievementId,
   Card,
@@ -285,7 +285,9 @@ interface ConversationStoreApi {
 const StoreContext = createContext<StoreContextValue | null>(null);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [snapshot, setSnapshot] = useState<DatabaseSnapshot>(() => buildSeedSnapshot());
+  // Pre-hydration state — an empty workspace. The real workspace loads from
+  // storage in the effect below.
+  const [snapshot, setSnapshot] = useState<DatabaseSnapshot>(() => emptySnapshot());
   const [ready, setReady] = useState(false);
   const snapRef = useRef(snapshot);
   snapRef.current = snapshot;
@@ -571,7 +573,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapshot, commit]);
 
   /* -------- Universal Quiz System -------- */
@@ -607,7 +608,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       },
       check: (question, given) => quizdb.checkAnswer(question, given),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapshot, commit]);
 
   const decks = useMemo(() => db.decksWithMeta(snapshot), [snapshot]);

@@ -35,17 +35,8 @@ export default function VocabPage({
   const [adding, setAdding] = useState(false);
   const [toDelete, setToDelete] = useState<string | null>(null);
 
-  if (!ready) return <PageSkeleton />;
-  const meta = lang.getProfile(id);
-  if (!meta) {
-    return (
-      <div className="p-10">
-        <Button href="/languages">Back to languages</Button>
-      </div>
-    );
-  }
-  const { language } = meta;
   const scheduler = getScheduler();
+  const meta = lang.getProfile(id);
   const vocab = lang.vocab(id);
 
   const filtered = useMemo(() => {
@@ -62,6 +53,16 @@ export default function VocabPage({
       })
       .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
   }, [vocab, q, filter, scheduler]);
+
+  if (!ready) return <PageSkeleton />;
+  if (!meta) {
+    return (
+      <div className="p-10">
+        <Button href="/languages">Back to languages</Button>
+      </div>
+    );
+  }
+  const { language } = meta;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10 lg:px-10">
